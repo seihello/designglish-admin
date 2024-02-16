@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/text-area";
 import Part from "@/enum/part.enum";
 import addCourseWord from "@/lib/supabase/add-course-word";
@@ -72,7 +73,14 @@ export default function Home() {
   };
 
   return (
-    <div className="mx-auto flex w-[800px] flex-col items-stretch justify-between gap-y-2">
+    <div className="mx-auto flex w-[800px] flex-col items-stretch justify-between gap-y-8">
+      <div className="flex items-center justify-between gap-x-4">
+        <Separator className="bg-primary-900 z-0 h-[1px] flex-1 -translate-y-1/2" />
+        <h2 className="bg-primary-100 text-primary-900 z-50 text-center text-lg font-bold">
+          Add New Word
+        </h2>
+        <Separator className="bg-primary-900 z-0 h-[1px] flex-1 -translate-y-1/2" />
+      </div>
       <div className="flex flex-col gap-y-4">
         <div>
           <Label>Title</Label>
@@ -204,11 +212,20 @@ export default function Home() {
           </Button>
         </div>
       </div>
-      {words?.map((word, index) => (
-        <div key={index}>
-          <p>{word.title}</p>
-        </div>
-      ))}
+      <div className="flex items-center justify-between gap-x-4">
+        <Separator className="bg-primary-900 z-0 h-[1px] flex-1 -translate-y-1/2" />
+        <h2 className="bg-primary-100 text-primary-900 z-50 text-center text-xl font-bold">
+          Word List
+        </h2>
+        <Separator className=" bg-primary-900 z-0 h-[1px] flex-1 -translate-y-1/2" />
+      </div>
+      <div>
+        {words?.map((word, index) => (
+          <div key={index}>
+            <p>{word.title}</p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
