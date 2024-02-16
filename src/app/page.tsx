@@ -57,7 +57,7 @@ export default function Home() {
         synonyms,
         sentences,
       );
-      
+
       setTitle("");
       setPronunciation("");
       setMeaning("");
@@ -194,7 +194,7 @@ export default function Home() {
                 setSynonyms(newSynonyms);
               }}
               className="mb-1"
-              placeholder={`e.g., To nudge users towards completing their purchase, the site might employ a subtle reminder, such as displaying a message like "Hurry! Only 1 item left in stock."`}
+              placeholder={"prompt"}
             />
           ))}
         </div>
