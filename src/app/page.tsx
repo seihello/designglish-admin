@@ -28,8 +28,8 @@ export default function Home() {
   const [pronunciation, setPronunciation] = useState("");
   const [meaning, setMeaning] = useState<string>("");
   const [selectedParts, setSelectedParts] = useState<Part[]>([]);
-  const [sentences, setSentences] = useState<string[]>([""]);
-  const [synonyms, setSynonyms] = useState<string[]>([""]);
+  const [sentences, setSentences] = useState<string[]>(["", "", ""]);
+  const [synonyms, setSynonyms] = useState<string[]>(["", "", ""]);
 
   const fetchWords = useCallback(async () => {
     try {
@@ -107,7 +107,7 @@ export default function Home() {
           <Label>Part</Label>
           <Listbox value={selectedParts} onChange={setSelectedParts} multiple>
             <div className="relative mt-1">
-              <Listbox.Button className="relative w-full cursor-default rounded-lg bg-white py-2 pl-3 pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm">
+              <Listbox.Button className="focus-visible:ring-offset-primary-300 relative w-full cursor-pointer rounded-lg border bg-white py-2 pl-3 pr-10 text-left focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 sm:text-sm">
                 {selectedParts.length > 0 ? (
                   <span className="block truncate">
                     {selectedParts.join(", ")}
@@ -135,7 +135,7 @@ export default function Home() {
                       className={({ active }) =>
                         `relative cursor-default select-none py-2 pl-10 pr-4 ${
                           active
-                            ? "bg-amber-100 text-amber-900"
+                            ? "bg-primary-100 text-primary-900"
                             : "text-gray-900"
                         }`
                       }
@@ -151,7 +151,7 @@ export default function Home() {
                             {partOption}
                           </span>
                           {selected ? (
-                            <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-amber-600">
+                            <span className="text-primary-900 absolute inset-y-0 left-0 flex items-center pl-3">
                               <FaCheck />
                             </span>
                           ) : null}
