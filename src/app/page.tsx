@@ -111,6 +111,7 @@ export default function Home() {
             value={meaning}
             onChange={(e) => setMeaning(e.target.value)}
             placeholder="e.g., Subtle design element or technique used to gently encourage users to take a specific action or guide them toward a desired behavior without being too forceful or interruptive. "
+            className="h-28"
           />
         </div>
         <div>
@@ -186,7 +187,7 @@ export default function Home() {
                 newSentences[index] = e.target.value;
                 setSentences(newSentences);
               }}
-              className="mb-1"
+              className="mb-1 h-28"
               placeholder={`e.g., To nudge users towards completing their purchase, the site might employ a subtle reminder, such as displaying a message like "Hurry! Only 1 item left in stock."`}
             />
           ))}
