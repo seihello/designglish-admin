@@ -73,7 +73,7 @@ export default function Home() {
   };
 
   return (
-    <div className="mx-auto flex w-[800px] flex-col items-stretch justify-between gap-y-8">
+    <div className="mx-auto flex w-full max-w-[800px] flex-col items-stretch justify-between gap-y-8 px-4">
       <div className="flex items-center justify-between gap-x-4">
         <Separator className="bg-primary-900 z-0 h-[1px] flex-1 -translate-y-1/2" />
         <h2 className="bg-primary-100 text-primary-900 z-50 text-center text-lg font-bold">
