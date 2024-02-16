@@ -54,16 +54,16 @@ export default function Home() {
         pronunciation,
         selectedParts,
         meaning,
-        synonyms,
-        sentences,
+        synonyms.filter((synonym) => synonym.length > 0),
+        sentences.filter((sentence) => sentence.length > 0),
       );
 
       setTitle("");
       setPronunciation("");
       setMeaning("");
       setSelectedParts([]);
-      setSynonyms([""]);
-      setSentences([""]);
+      setSynonyms(["", "", ""]);
+      setSentences(["", "", ""]);
 
       await fetchWords();
     } catch (error) {
