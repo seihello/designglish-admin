@@ -1,113 +1,214 @@
-import Image from "next/image";
+"use client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/text-area";
+import Part from "@/enum/part.enum";
+import addCourseWord from "@/lib/supabase/add-course-word";
+import getCourseWords from "@/lib/supabase/get-course-words";
+import Word from "@/types/word.type";
+import { Listbox, Transition } from "@headlessui/react";
+import { Fragment, useCallback, useEffect, useState } from "react";
+import { FaCheck } from "react-icons/fa";
+
+const partOptions = [
+  Part.Noun,
+  Part.Verb,
+  Part.Adjective,
+  Part.Adverb,
+  Part.Idiom,
+];
 
 export default function Home() {
+  // For existing words
+  const [words, setWords] = useState<Word[]>();
+
+  // For adding a new word
+  const [title, setTitle] = useState("");
+  const [pronunciation, setPronunciation] = useState("");
+  const [meaning, setMeaning] = useState<string>("");
+  const [selectedParts, setSelectedParts] = useState<Part[]>([]);
+  const [sentences, setSentences] = useState<string[]>([""]);
+  const [synonyms, setSynonyms] = useState<string[]>([""]);
+
+  const fetchWords = useCallback(async () => {
+    try {
+      const words = await getCourseWords();
+      setWords(words);
+    } catch (error) {
+      console.log(error);
+    }
+  }, []);
+
+  useEffect(() => {
+    const inner = async () => {
+      await fetchWords();
+    };
+    inner();
+  }, [fetchWords]);
+
+  const handleSubmitNewWord = async () => {
+    try {
+      await addCourseWord(
+        title,
+        pronunciation,
+        selectedParts,
+        meaning,
+        synonyms,
+        sentences,
+      );
+      
+      setTitle("");
+      setPronunciation("");
+      setMeaning("");
+      setSelectedParts([]);
+      setSynonyms([""]);
+      setSentences([""]);
+
+      await fetchWords();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
+    <div className="mx-auto flex w-[800px] flex-col items-stretch justify-between gap-y-2">
+      <div className="flex flex-col gap-y-4">
+        <div>
+          <Label>Title</Label>
+          <Input
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            type="text"
+            id="title"
+            placeholder="e.g., nudge"
+          />
+        </div>
+        <div>
+          <Label>Pronunciation</Label>
+          <Input
+            value={pronunciation}
+            onChange={(e) => setPronunciation(e.target.value)}
+            type="text"
+            id="pronunciation"
+            placeholder="e.g., nʌdʒ"
+          />
+        </div>
+        <div>
+          <Label>Meaning</Label>
+          <Textarea
+            id="meaning"
+            value={meaning}
+            onChange={(e) => setMeaning(e.target.value)}
+            placeholder="e.g., Subtle design element or technique used to gently encourage users to take a specific action or guide them toward a desired behavior without being too forceful or interruptive. "
+          />
+        </div>
+        <div>
+          <Label>Part</Label>
+          <Listbox value={selectedParts} onChange={setSelectedParts} multiple>
+            <div className="relative mt-1">
+              <Listbox.Button className="relative w-full cursor-default rounded-lg bg-white py-2 pl-3 pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm">
+                {selectedParts.length > 0 ? (
+                  <span className="block truncate">
+                    {selectedParts.join(", ")}
+                  </span>
+                ) : (
+                  <span className="text-gray-500">Select part</span>
+                )}
+                <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                  {/* <ChevronUpDownIcon
+                  className="h-5 w-5 text-gray-400"
+                  aria-hidden="true"
+                /> */}
+                </span>
+              </Listbox.Button>
+              <Transition
+                as={Fragment}
+                leave="transition ease-in duration-100"
+                leaveFrom="opacity-100"
+                leaveTo="opacity-0"
+              >
+                <Listbox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
+                  {partOptions.map((partOption, index) => (
+                    <Listbox.Option
+                      key={index}
+                      className={({ active }) =>
+                        `relative cursor-default select-none py-2 pl-10 pr-4 ${
+                          active
+                            ? "bg-amber-100 text-amber-900"
+                            : "text-gray-900"
+                        }`
+                      }
+                      value={partOption}
+                    >
+                      {({ selected }) => (
+                        <>
+                          <span
+                            className={`block truncate ${
+                              selected ? "font-medium" : "font-normal"
+                            }`}
+                          >
+                            {partOption}
+                          </span>
+                          {selected ? (
+                            <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-amber-600">
+                              <FaCheck />
+                            </span>
+                          ) : null}
+                        </>
+                      )}
+                    </Listbox.Option>
+                  ))}
+                </Listbox.Options>
+              </Transition>
+            </div>
+          </Listbox>
+        </div>
+        <div>
+          <Label>Sentence</Label>
+          {sentences.map((sentence, index) => (
+            <Textarea
+              key={index}
+              id="title"
+              value={sentence}
+              onChange={(e) => {
+                const newSentences = [...sentences];
+                newSentences[index] = e.target.value;
+                setSentences(newSentences);
+              }}
+              className="mb-1"
+              placeholder={`e.g., To nudge users towards completing their purchase, the site might employ a subtle reminder, such as displaying a message like "Hurry! Only 1 item left in stock."`}
             />
-          </a>
+          ))}
+        </div>
+        <div>
+          <Label>Synonym</Label>
+          {synonyms.map((synonym, index) => (
+            <Input
+              key={index}
+              id="synonym"
+              value={synonym}
+              onChange={(e) => {
+                const newSynonyms = [...synonyms];
+                newSynonyms[index] = e.target.value;
+                setSynonyms(newSynonyms);
+              }}
+              className="mb-1"
+              placeholder={`e.g., To nudge users towards completing their purchase, the site might employ a subtle reminder, such as displaying a message like "Hurry! Only 1 item left in stock."`}
+            />
+          ))}
+        </div>
+        <div className="flex justify-end">
+          <Button onClick={handleSubmitNewWord} className="w-24">
+            Submit
+          </Button>
         </div>
       </div>
-
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-full sm:before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full sm:after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px] z-[-1]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore starter templates for Next.js.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50 text-balance`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+      {words?.map((word, index) => (
+        <div key={index}>
+          <p>{word.title}</p>
+        </div>
+      ))}
+    </div>
   );
 }
