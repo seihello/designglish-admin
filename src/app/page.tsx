@@ -50,6 +50,8 @@ export default function Home() {
 
   const handleSubmitNewWord = async () => {
     try {
+      if (title.length === 0) return;
+
       await addCourseWord(
         title,
         pronunciation,
