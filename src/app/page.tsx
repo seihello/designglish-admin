@@ -77,11 +77,11 @@ export default function Home() {
   return (
     <div className="mx-auto flex w-full max-w-[800px] flex-col items-stretch justify-between gap-y-8 px-4">
       <div className="flex items-center justify-between gap-x-4">
-        <Separator className="bg-primary-900 z-0 h-[1px] flex-1 -translate-y-1/2" />
-        <h2 className="bg-primary-100 text-primary-900 z-50 text-center text-lg font-bold">
+        <Separator className="z-0 h-[1px] flex-1 -translate-y-1/2 bg-primary-900" />
+        <h2 className="z-50 bg-primary-100 text-center text-lg font-bold text-primary-900">
           Add New Word
         </h2>
-        <Separator className="bg-primary-900 z-0 h-[1px] flex-1 -translate-y-1/2" />
+        <Separator className="z-0 h-[1px] flex-1 -translate-y-1/2 bg-primary-900" />
       </div>
       <div className="flex flex-col gap-y-4">
         <div>
@@ -118,7 +118,7 @@ export default function Home() {
           <Label>Part</Label>
           <Listbox value={selectedParts} onChange={setSelectedParts} multiple>
             <div className="relative mt-1">
-              <Listbox.Button className="focus-visible:ring-offset-primary-300 relative w-full cursor-pointer rounded-lg border bg-white py-2 pl-3 pr-10 text-left focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 sm:text-sm">
+              <Listbox.Button className="relative w-full cursor-pointer rounded-lg border bg-white py-2 pl-3 pr-10 text-left focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-primary-300 sm:text-sm">
                 {selectedParts.length > 0 ? (
                   <span className="block truncate">
                     {selectedParts.join(", ")}
@@ -162,7 +162,7 @@ export default function Home() {
                             {partOption}
                           </span>
                           {selected ? (
-                            <span className="text-primary-900 absolute inset-y-0 left-0 flex items-center pl-3">
+                            <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-primary-900">
                               <FaCheck />
                             </span>
                           ) : null}
@@ -216,16 +216,43 @@ export default function Home() {
         </div>
       </div>
       <div className="flex items-center justify-between gap-x-4">
-        <Separator className="bg-primary-900 z-0 h-[1px] flex-1 -translate-y-1/2" />
-        <h2 className="bg-primary-100 text-primary-900 z-50 text-center text-xl font-bold">
+        <Separator className="z-0 h-[1px] flex-1 -translate-y-1/2 bg-primary-900" />
+        <h2 className="z-50 bg-primary-100 text-center text-xl font-bold text-primary-900">
           Word List
         </h2>
-        <Separator className=" bg-primary-900 z-0 h-[1px] flex-1 -translate-y-1/2" />
+        <Separator className=" z-0 h-[1px] flex-1 -translate-y-1/2 bg-primary-900" />
       </div>
-      <div>
+      <div className="flex flex-col gap-y-2">
         {words?.map((word, index) => (
-          <div key={index}>
-            <p>{word.title}</p>
+          <div
+            key={index}
+            className="flex w-full flex-col gap-y-2 bg-white p-4 shadow-md"
+          >
+            <div className="flex items-center gap-x-2">
+              <h3 className="text-lg font-bold">{word.title}</h3>
+              <p className="text-sm italic">{word.ipa}</p>
+            </div>
+            <div>
+              <p>[{word.parts.join(", ")}]</p>
+              <p>{word.meaning}</p>
+            </div>
+            <div>
+              {word.sentences.map((sentence, index) => (
+                <p key={index} className="italic">
+                  {sentence}
+                </p>
+              ))}
+            </div>
+            <div className="flex flex-wrap gap-x-2 gap-y-2">
+              {word.synonyms.map((synonym, index) => (
+                <p
+                  key={index}
+                  className="rounded-full border border-primary-900 bg-primary-100 px-3 py-1 text-sm text-primary-900"
+                >
+                  {synonym}
+                </p>
+              ))}
+            </div>
           </div>
         ))}
       </div>
