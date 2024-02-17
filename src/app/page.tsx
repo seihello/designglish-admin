@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/text-area";
 import Part from "@/enum/part.enum";
 import addCourseWord from "@/lib/supabase/add-course-word";
 import getCourseWords from "@/lib/supabase/get-course-words";
+import updateCourseWord from "@/lib/supabase/update-course-word";
 import Word from "@/types/word.type";
 import { Listbox, Transition } from "@headlessui/react";
 import { Fragment, useCallback, useEffect, useState } from "react";
@@ -31,6 +32,7 @@ export default function Home() {
   const [selectedParts, setSelectedParts] = useState<Part[]>([]);
   const [sentences, setSentences] = useState<string[]>(["", "", ""]);
   const [synonyms, setSynonyms] = useState<string[]>(["", "", ""]);
+  const [editingId, setEditingId] = useState<number | null>(null);
 
   const fetchWords = useCallback(async () => {
     try {
@@ -48,18 +50,53 @@ export default function Home() {
     inner();
   }, [fetchWords]);
 
-  const handleSubmitNewWord = async () => {
+  const handleEditWord = async (index: number) => {
+    if (!words) return;
+
+    const editingWord = words[index];
+    setEditingId(editingWord.id);
+    setTitle(editingWord.title);
+    setPronunciation(editingWord.ipa);
+    setMeaning(editingWord.meaning);
+    setSelectedParts(editingWord.parts);
+    setSentences([...editingWord.sentences, "", "", ""].slice(0, 3));
+    setSynonyms([...editingWord.synonyms, "", "", ""].slice(0, 3));
+  };
+
+  const handleCancelEditing = async () => {
+    if (editingId === null) return;
+
+    setEditingId(null);
+    setTitle("");
+    setPronunciation("");
+    setMeaning("");
+    setSelectedParts([]);
+    setSynonyms(["", "", ""]);
+    setSentences(["", "", ""]);
+  };
+
+  const handleSubmit = async () => {
     try {
       if (title.length === 0) return;
 
-      await addCourseWord(
-        title,
-        pronunciation,
-        selectedParts,
-        meaning,
-        synonyms.filter((synonym) => synonym.length > 0),
-        sentences.filter((sentence) => sentence.length > 0),
-      );
+      editingId === null
+        ? await addCourseWord(
+            title,
+            pronunciation,
+            selectedParts,
+            meaning,
+            synonyms.filter((synonym) => synonym.length > 0),
+            sentences.filter((sentence) => sentence.length > 0),
+          )
+        : await updateCourseWord(
+            editingId,
+            title,
+            pronunciation,
+            selectedParts,
+            meaning,
+            synonyms.filter((synonym) => synonym.length > 0),
+            sentences.filter((sentence) => sentence.length > 0),
+          );
 
       setTitle("");
       setPronunciation("");
@@ -85,7 +122,9 @@ export default function Home() {
       </div>
       <div className="flex flex-col gap-y-4">
         <div>
-          <Label>Title</Label>
+          <Label>
+            Title<span className="text-error-900">*</span>
+          </Label>
           <Input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
@@ -180,7 +219,7 @@ export default function Home() {
           {sentences.map((sentence, index) => (
             <Textarea
               key={index}
-              id="title"
+              id="sentence"
               value={sentence}
               onChange={(e) => {
                 const newSentences = [...sentences];
@@ -209,9 +248,18 @@ export default function Home() {
             />
           ))}
         </div>
-        <div className="flex justify-end">
-          <Button onClick={handleSubmitNewWord} className="w-24">
-            Submit
+        <div className="flex justify-end gap-x-2">
+          {editingId !== null && (
+            <Button
+              variant="outline"
+              onClick={handleCancelEditing}
+              className="w-24"
+            >
+              Cancel
+            </Button>
+          )}
+          <Button onClick={handleSubmit} className="w-24">
+            {editingId === null ? "Submit" : "Finish"}
           </Button>
         </div>
       </div>
@@ -226,7 +274,7 @@ export default function Home() {
         {words?.map((word, index) => (
           <div
             key={index}
-            className="flex w-full flex-col gap-y-2 bg-white p-4 shadow-md"
+            className="relative flex w-full flex-col gap-y-2 bg-white p-4 shadow-md"
           >
             <div className="flex items-center gap-x-2">
               <h3 className="text-lg font-bold">{word.title}</h3>
@@ -239,7 +287,7 @@ export default function Home() {
             <div>
               {word.sentences.map((sentence, index) => (
                 <p key={index} className="italic">
-                  {sentence}
+                  - {sentence}
                 </p>
               ))}
             </div>
@@ -253,6 +301,12 @@ export default function Home() {
                 </p>
               ))}
             </div>
+            <Button
+              onClick={() => handleEditWord(index)}
+              className="absolute right-4"
+            >
+              Edit
+            </Button>
           </div>
         ))}
       </div>
