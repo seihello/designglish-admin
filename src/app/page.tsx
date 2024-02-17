@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/text-area";
 import Part from "@/enum/part.enum";
 import addCourseWord from "@/lib/supabase/add-course-word";
@@ -35,12 +36,17 @@ export default function Home() {
   const [synonyms, setSynonyms] = useState<string[]>(["", "", ""]);
   const [editingId, setEditingId] = useState<number | null>(null);
 
+  const [isLoadingWords, setIsLoadingWords] = useState<boolean>(true);
+
   const fetchWords = useCallback(async () => {
     try {
+      setIsLoadingWords(true);
       const words = await getCourseWords();
       setWords(words);
     } catch (error) {
       console.log(error);
+    } finally {
+      setTimeout(() => setIsLoadingWords(false), 1000);
     }
   }, []);
 
@@ -275,46 +281,54 @@ export default function Home() {
         <Separator className=" z-0 h-[1px] flex-1 -translate-y-1/2 bg-primary-900" />
       </div>
       <div className="flex flex-col gap-y-2">
-        {words?.map((word, index) => (
-          <div
-            key={index}
-            className="relative flex w-full flex-col gap-y-2 bg-white p-4 shadow-md"
-          >
-            <div className="flex items-center gap-x-2">
-              <h3 className="text-lg font-bold">{word.title}</h3>
-              <p className="text-sm italic">{word.ipa}</p>
-            </div>
-            <div>
-              <p>[{word.parts.join(", ")}]</p>
-              <p>{word.meaning}</p>
-            </div>
-            <div>
-              {word.sentences.map((sentence, index) => (
-                <p key={index} className="italic">
-                  - {sentence}
-                </p>
-              ))}
-            </div>
-            <div className="flex flex-wrap gap-x-2 gap-y-2">
-              {word.synonyms.map((synonym, index) => (
-                <p
-                  key={index}
-                  className="rounded-full border border-primary-900 bg-primary-100 px-3 py-1 text-sm text-primary-900"
-                >
-                  {synonym}
-                </p>
-              ))}
-            </div>
-            <ScrollLink
-              to="form"
-              smooth={true}
-              duration={200}
-              className="absolute right-4"
+        {isLoadingWords ? (
+          <>
+            <Skeleton className="h-24 w-full bg-gray-100 shadow-md" />
+            <Skeleton className="h-24 w-full bg-gray-100 shadow-md" />
+            <Skeleton className="h-24 w-full bg-gray-100 shadow-md" />
+          </>
+        ) : (
+          words?.map((word, index) => (
+            <div
+              key={index}
+              className="relative flex w-full flex-col gap-y-2 bg-white p-4 shadow-md"
             >
-              <Button onClick={() => handleEditWord(index)}>Edit</Button>
-            </ScrollLink>
-          </div>
-        ))}
+              <div className="flex items-center gap-x-2">
+                <h3 className="text-lg font-bold">{word.title}</h3>
+                <p className="text-sm italic">{word.ipa}</p>
+              </div>
+              <div>
+                <p>[{word.parts.join(", ")}]</p>
+                <p>{word.meaning}</p>
+              </div>
+              <div>
+                {word.sentences.map((sentence, index) => (
+                  <p key={index} className="italic">
+                    - {sentence}
+                  </p>
+                ))}
+              </div>
+              <div className="flex flex-wrap gap-x-2 gap-y-2">
+                {word.synonyms.map((synonym, index) => (
+                  <p
+                    key={index}
+                    className="rounded-full border border-primary-900 bg-primary-100 px-3 py-1 text-sm text-primary-900"
+                  >
+                    {synonym}
+                  </p>
+                ))}
+              </div>
+              <ScrollLink
+                to="form"
+                smooth={true}
+                duration={200}
+                className="absolute right-4"
+              >
+                <Button onClick={() => handleEditWord(index)}>Edit</Button>
+              </ScrollLink>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );
