@@ -12,6 +12,7 @@ import Word from "@/types/word.type";
 import { Listbox, Transition } from "@headlessui/react";
 import { Fragment, useCallback, useEffect, useState } from "react";
 import { FaCheck } from "react-icons/fa";
+import { Link as ScrollLink } from "react-scroll";
 
 const partOptions = [
   Part.Noun,
@@ -115,8 +116,11 @@ export default function Home() {
     <div className="mx-auto flex w-full max-w-[800px] flex-col items-stretch justify-between gap-y-8 px-4">
       <div className="flex items-center justify-between gap-x-4">
         <Separator className="z-0 h-[1px] flex-1 -translate-y-1/2 bg-primary-900" />
-        <h2 className="z-50 bg-primary-100 text-center text-lg font-bold text-primary-900">
-          Add New Word
+        <h2
+          id="form"
+          className="z-50 bg-primary-100 text-center text-lg font-bold text-primary-900"
+        >
+          {editingId === null ? "Add New Word" : "Edit Word"}
         </h2>
         <Separator className="z-0 h-[1px] flex-1 -translate-y-1/2 bg-primary-900" />
       </div>
@@ -301,12 +305,14 @@ export default function Home() {
                 </p>
               ))}
             </div>
-            <Button
-              onClick={() => handleEditWord(index)}
+            <ScrollLink
+              to="form"
+              smooth={true}
+              duration={200}
               className="absolute right-4"
             >
-              Edit
-            </Button>
+              <Button onClick={() => handleEditWord(index)}>Edit</Button>
+            </ScrollLink>
           </div>
         ))}
       </div>
