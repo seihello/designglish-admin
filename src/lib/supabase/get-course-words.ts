@@ -6,7 +6,8 @@ export default async function getCourseWords(): Promise<Word[]> {
   try {
     const { data, error } = await supabase
       .from("words")
-      .select("*, sentences(sentence)");
+      .select("*, sentences(sentence)")
+      .order("id", { ascending: false });
     if (error) {
       throw new Error(error.message);
     }
