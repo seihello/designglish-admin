@@ -268,7 +268,11 @@ export default function Home() {
               Cancel
             </Button>
           )}
-          <Button onClick={handleSubmit} className="w-24">
+          <Button
+            onClick={handleSubmit}
+            className="w-24"
+            disabled={title.length === 0}
+          >
             {editingId === null ? "Submit" : "Finish"}
           </Button>
         </div>
