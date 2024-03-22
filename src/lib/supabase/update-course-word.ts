@@ -44,4 +44,22 @@ export default async function updateCourseWord(
       throw new Error(insertSentencesRes.error.message);
     }
   }
+
+  const deleteCategoriesRes = await supabase
+    .from("word_categories")
+    .delete()
+    .eq("word_id", id);
+  if (deleteCategoriesRes.error) {
+    throw new Error(deleteCategoriesRes.error.message);
+  }
+
+  for (const categoryId of categoryIds) {
+    const insertCategoryRes = await supabase.from("word_categories").insert({
+      word_id: id,
+      category_id: categoryId,
+    });
+    if (insertCategoryRes.error) {
+      throw new Error(insertCategoryRes.error.message);
+    }
+  }
 }

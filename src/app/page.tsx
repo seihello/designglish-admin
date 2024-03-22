@@ -10,7 +10,6 @@ import addCourseWord from "@/lib/supabase/add-course-word";
 import getCategories from "@/lib/supabase/get-categories";
 import getCourseWords from "@/lib/supabase/get-course-words";
 import updateCourseWord from "@/lib/supabase/update-course-word";
-import Category from "@/types/category.type";
 import Word from "@/types/word.type";
 import { Listbox, Transition } from "@headlessui/react";
 import { Fragment, useCallback, useEffect, useState } from "react";
@@ -40,7 +39,9 @@ export default function Home() {
   const [editingId, setEditingId] = useState<number | null>(null);
 
   // Categories
-  const [categoryOptions, setCategoryOptions] = useState<Category[]>([]);
+  const [categoryOptions, setCategoryOptions] = useState<Map<number, string>>(
+    new Map(),
+  );
 
   const [isLoadingWords, setIsLoadingWords] = useState<boolean>(true);
 
@@ -65,7 +66,11 @@ export default function Home() {
 
   useEffect(() => {
     const run = async () => {
-      const categoryOptions = await getCategories();
+      const categories = await getCategories();
+      const categoryOptions = new Map<number, string>();
+      categories.forEach((category) => {
+        categoryOptions.set(category.id, category.name);
+      });
       setCategoryOptions(categoryOptions);
     };
     run();
@@ -137,8 +142,6 @@ export default function Home() {
       console.error(error);
     }
   };
-
-  console.log("words", words);
 
   return (
     <div className="mx-auto flex w-full max-w-[800px] flex-col items-stretch justify-between gap-y-8 px-4">
@@ -259,9 +262,8 @@ export default function Home() {
                 {selectedCategoryIds.length > 0 ? (
                   <span className="block truncate">
                     {selectedCategoryIds
-                      .map(
-                        (selectedCategoryId) =>
-                          categoryOptions[selectedCategoryId].name,
+                      .map((selectedCategoryId) =>
+                        categoryOptions.get(selectedCategoryId),
                       )
                       .join(", ")}
                   </span>
@@ -282,36 +284,38 @@ export default function Home() {
                 leaveTo="opacity-0"
               >
                 <Listbox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
-                  {categoryOptions.map((categoryOption, index) => (
-                    <Listbox.Option
-                      key={index}
-                      className={({ active }) =>
-                        `relative cursor-default select-none py-2 pl-10 pr-4 ${
-                          active
-                            ? "bg-primary-100 text-primary-900"
-                            : "text-gray-900"
-                        }`
-                      }
-                      value={categoryOption.id}
-                    >
-                      {({ selected }) => (
-                        <>
-                          <span
-                            className={`block truncate ${
-                              selected ? "font-medium" : "font-normal"
-                            }`}
-                          >
-                            {categoryOption.name}
-                          </span>
-                          {selected ? (
-                            <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-primary-900">
-                              <FaCheck />
+                  {Array.from(categoryOptions.entries()).map(
+                    (categoryOption, index) => (
+                      <Listbox.Option
+                        key={index}
+                        className={({ active }) =>
+                          `relative cursor-default select-none py-2 pl-10 pr-4 ${
+                            active
+                              ? "bg-primary-100 text-primary-900"
+                              : "text-gray-900"
+                          }`
+                        }
+                        value={categoryOption[0]}
+                      >
+                        {({ selected }) => (
+                          <>
+                            <span
+                              className={`block truncate ${
+                                selected ? "font-medium" : "font-normal"
+                              }`}
+                            >
+                              {categoryOption[1]}
                             </span>
-                          ) : null}
-                        </>
-                      )}
-                    </Listbox.Option>
-                  ))}
+                            {selected ? (
+                              <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-primary-900">
+                                <FaCheck />
+                              </span>
+                            ) : null}
+                          </>
+                        )}
+                      </Listbox.Option>
+                    ),
+                  )}
                 </Listbox.Options>
               </Transition>
             </div>
