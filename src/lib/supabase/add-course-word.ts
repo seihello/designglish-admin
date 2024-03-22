@@ -7,7 +7,9 @@ export default async function addCourseWord(
   parts: Part[],
   meaning: string,
   synonyms: string[],
+  // phaseId: string,
   sentences: string[],
+  categoryIds: number[],
 ) {
   const supabase = createClient();
   const insertWordRes = await supabase
@@ -18,6 +20,7 @@ export default async function addCourseWord(
       parts,
       meaning,
       synonyms,
+      // phase_id: phaseId,
     })
     .select()
     .single();
@@ -26,6 +29,7 @@ export default async function addCourseWord(
   }
 
   const addedId = insertWordRes.data.id;
+  // TODO: Can't be added by single query?
   for (const sentence of sentences) {
     const insertSentencesRes = await supabase.from("sentences").insert({
       word_id: addedId,
@@ -33,6 +37,16 @@ export default async function addCourseWord(
     });
     if (insertSentencesRes.error) {
       throw new Error(insertSentencesRes.error.message);
+    }
+  }
+  // TODO: Can't be added by single query?
+  for (const categoryId of categoryIds) {
+    const insertCategoryRes = await supabase.from("word_categories").insert({
+      word_id: addedId,
+      category_id: categoryId,
+    });
+    if (insertCategoryRes.error) {
+      throw new Error(insertCategoryRes.error.message);
     }
   }
 }

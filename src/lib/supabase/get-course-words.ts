@@ -1,4 +1,5 @@
 import createClient from "@/lib/supabase/client";
+import Category from "@/types/category.type";
 import Word from "../../types/word.type";
 
 export default async function getCourseWords(): Promise<Word[]> {
@@ -6,7 +7,9 @@ export default async function getCourseWords(): Promise<Word[]> {
   try {
     const { data, error } = await supabase
       .from("words")
-      .select("*, sentences(sentence)")
+      .select(
+        "*, sentences(sentence), word_categories(categories(*)), phases(name)",
+      )
       .order("id", { ascending: false });
     if (error) {
       throw new Error(error.message);
@@ -18,9 +21,14 @@ export default async function getCourseWords(): Promise<Word[]> {
         const sentences: string[] = wordRow.sentences.map(
           (sentence: any) => sentence.sentence,
         );
-        words.push({ ...wordRow, sentences });
+        const categories: Category[] = wordRow.word_categories.map(
+          (category: any) => ({ id: category.id, name: category.name }),
+        );
+        delete wordRow.word_categories;
+        words.push({ ...wordRow, sentences, categories });
       }
     }
+
     return words;
   } catch (error) {
     throw error;
