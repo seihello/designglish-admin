@@ -75,6 +75,7 @@ export default function Home() {
     if (!words) return;
 
     const editingWord = words[index];
+
     setEditingId(editingWord.id);
     setTitle(editingWord.title);
     setPronunciation(editingWord.ipa);
@@ -82,6 +83,7 @@ export default function Home() {
     setSelectedParts(editingWord.parts);
     setSentences([...editingWord.sentences, "", "", ""].slice(0, 3));
     setSynonyms([...editingWord.synonyms, "", "", ""].slice(0, 3));
+    setSelectedCategoryIds(editingWord.categoryIds);
   };
 
   const handleCancelEditing = async () => {
@@ -119,7 +121,7 @@ export default function Home() {
             meaning,
             synonyms.filter((synonym) => synonym.length > 0),
             sentences.filter((sentence) => sentence.length > 0),
-            // TODO: add category IDs
+            selectedCategoryIds,
           );
 
       setTitle("");
@@ -135,6 +137,8 @@ export default function Home() {
       console.error(error);
     }
   };
+
+  console.log("words", words);
 
   return (
     <div className="mx-auto flex w-full max-w-[800px] flex-col items-stretch justify-between gap-y-8 px-4">
@@ -206,7 +210,7 @@ export default function Home() {
                 leaveFrom="opacity-100"
                 leaveTo="opacity-0"
               >
-                <Listbox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
+                <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
                   {partOptions.map((partOption, index) => (
                     <Listbox.Option
                       key={index}

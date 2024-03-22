@@ -10,7 +10,7 @@ type Word = {
   ipa: string;
   parts: Part[];
   synonyms: string[];
-  categories: Category[];
+  categoryIds: number[];
   phase: Phase;
 };
 

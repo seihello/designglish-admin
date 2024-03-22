@@ -9,6 +9,7 @@ export default async function updateCourseWord(
   meaning: string,
   synonyms: string[],
   sentences: string[],
+  categoryIds: number[],
 ) {
   const supabase = createClient();
   const updateWordRes = await supabase
