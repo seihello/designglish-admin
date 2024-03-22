@@ -420,6 +420,16 @@ export default function Home() {
                   </p>
                 ))}
               </div>
+              <div className="flex flex-wrap gap-x-2 gap-y-2">
+                {word.categoryIds.map((categoryId, index) => (
+                  <p
+                    key={index}
+                    className="rounded-md border border-warning-500 bg-warning-100 px-3 py-1 text-sm text-warning-900"
+                  >
+                    {categoryOptions.get(categoryId)}
+                  </p>
+                ))}
+              </div>
               <ScrollLink
                 to="form"
                 smooth={true}
