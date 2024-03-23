@@ -10,6 +10,7 @@ export default async function updateCourseWord(
   synonyms: string[],
   sentences: string[],
   categoryIds: number[],
+  phaseIds: number[],
 ) {
   const supabase = createClient();
   const updateWordRes = await supabase
@@ -60,6 +61,24 @@ export default async function updateCourseWord(
     });
     if (insertCategoryRes.error) {
       throw new Error(insertCategoryRes.error.message);
+    }
+  }
+
+  const deletePhasesRes = await supabase
+    .from("word_phases")
+    .delete()
+    .eq("word_id", id);
+  if (deletePhasesRes.error) {
+    throw new Error(deletePhasesRes.error.message);
+  }
+
+  for (const phaseId of phaseIds) {
+    const insertPhaseRes = await supabase.from("word_phases").insert({
+      word_id: id,
+      phase_id: phaseId,
+    });
+    if (insertPhaseRes.error) {
+      throw new Error(insertPhaseRes.error.message);
     }
   }
 }

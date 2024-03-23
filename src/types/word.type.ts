@@ -1,6 +1,4 @@
 import Part from "@/enum/part.enum";
-import Category from "@/types/category.type";
-import Phase from "@/types/phase.type";
 
 type Word = {
   id: number;
@@ -11,7 +9,7 @@ type Word = {
   parts: Part[];
   synonyms: string[];
   categoryIds: number[];
-  phase: Phase;
+  phaseIds: number[];
 };
 
 export default Word;
