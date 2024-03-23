@@ -56,7 +56,7 @@ export default function Home() {
       const words = await getCourseWords();
       setWords(words);
     } catch (error) {
-      console.log(error);
+      console.error(error);
     } finally {
       setTimeout(() => setIsLoadingWords(false), 1000);
     }
