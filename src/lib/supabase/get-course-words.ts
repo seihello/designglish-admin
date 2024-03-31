@@ -1,8 +1,9 @@
-import createClient from "@/lib/supabase/client";
+"use server";
+import createClient from "@/lib/supabase/server";
 import Word from "../../types/word.type";
 
 export default async function getCourseWords(): Promise<Word[]> {
-  const supabase = createClient();
+  const supabase = await createClient();
   try {
     const { data, error } = await supabase
       .from("words")

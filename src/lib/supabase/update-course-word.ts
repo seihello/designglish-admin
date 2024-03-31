@@ -1,5 +1,6 @@
+"use server";
 import Part from "@/enum/part.enum";
-import createClient from "@/lib/supabase/client";
+import createClient from "@/lib/supabase/server";
 
 export default async function updateCourseWord(
   id: number,
@@ -12,7 +13,7 @@ export default async function updateCourseWord(
   categoryIds: number[],
   phaseIds: number[],
 ) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const updateWordRes = await supabase
     .from("words")
     .update({
