@@ -16,6 +16,7 @@ import { Listbox, Transition } from "@headlessui/react";
 import { Fragment, useCallback, useEffect, useState } from "react";
 import { FaCheck } from "react-icons/fa";
 import { Link as ScrollLink } from "react-scroll";
+import BeatLoader from "react-spinners/BeatLoader";
 
 const partOptions = [
   Part.Noun,
@@ -49,6 +50,7 @@ export default function Home() {
   );
 
   const [isLoadingWords, setIsLoadingWords] = useState<boolean>(true);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const fetchWords = useCallback(async () => {
     try {
@@ -122,6 +124,8 @@ export default function Home() {
     try {
       if (title.length === 0) return;
 
+      setIsSubmitting(true);
+
       editingId === null
         ? await addCourseWord(
             title,
@@ -154,6 +158,8 @@ export default function Home() {
       setSelectedCategoryIds([]);
 
       await fetchWords();
+
+      setIsSubmitting(false);
     } catch (error) {
       console.error(error);
     }
@@ -457,9 +463,15 @@ export default function Home() {
           <Button
             onClick={handleSubmit}
             className="w-24"
-            disabled={title.length === 0}
+            disabled={title.length === 0 || isSubmitting}
           >
-            {editingId === null ? "Submit" : "Finish"}
+            {isSubmitting ? (
+              <BeatLoader color="white" loading={true} size={8} />
+            ) : editingId === null ? (
+              "Submit"
+            ) : (
+              "Finish"
+            )}
           </Button>
         </div>
       </div>
