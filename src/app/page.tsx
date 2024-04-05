@@ -110,12 +110,6 @@ export default function Home() {
     setIsDialogOpen(true);
   };
 
-  const handleCancelEditing = async () => {
-    if (editingId === null) return;
-
-    setIsDialogOpen(false);
-  };
-
   const handleSubmit = async () => {
     try {
       if (title.length === 0) return;
@@ -171,7 +165,12 @@ export default function Home() {
   return (
     <div className="mx-auto flex w-full max-w-[800px] flex-col items-stretch justify-between gap-y-8 px-4">
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="h-[80vh] w-screen max-w-[800px] overflow-scroll bg-primary-100">
+        <DialogContent
+          onInteractOutside={(e) => {
+            e.preventDefault();
+          }}
+          className="h-[80vh] w-screen max-w-[800px] overflow-scroll bg-primary-100"
+        >
           <div className="flex items-center justify-between gap-x-4">
             <Separator className="z-0 h-[1px] flex-1 -translate-y-1/2 bg-primary-900" />
             <h2
@@ -460,18 +459,16 @@ export default function Home() {
               ))}
             </div>
             <div className="flex justify-end gap-x-2">
-              {editingId !== null && (
-                <Button
-                  variant="outline"
-                  onClick={handleCancelEditing}
-                  className="w-24"
-                >
-                  Cancel
-                </Button>
-              )}
+              <Button
+                variant="outline"
+                onClick={() => setIsDialogOpen(false)}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
               <Button
                 onClick={handleSubmit}
-                className="w-24"
+                className="flex-1"
                 disabled={title.length === 0 || isSubmitting}
               >
                 {isSubmitting ? (
