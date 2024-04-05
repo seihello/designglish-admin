@@ -156,6 +156,7 @@ export default function Home() {
       setSynonyms(["", "", ""]);
       setSentences(["", "", ""]);
       setSelectedCategoryIds([]);
+      setSelectedPhaseIds([]);
 
       await fetchWords();
 
