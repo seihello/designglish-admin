@@ -113,16 +113,6 @@ export default function Home() {
   const handleCancelEditing = async () => {
     if (editingId === null) return;
 
-    setEditingId(null);
-    setTitle("");
-    setPronunciation("");
-    setMeaning("");
-    setSelectedParts([]);
-    setSynonyms(["", "", ""]);
-    setSentences(["", "", ""]);
-    setSelectedCategoryIds([]);
-    setSelectedPhaseIds([]);
-
     setIsDialogOpen(false);
   };
 
@@ -154,16 +144,6 @@ export default function Home() {
             selectedCategoryIds,
             selectedPhaseIds,
           );
-
-      setTitle("");
-      setPronunciation("");
-      setMeaning("");
-      setSelectedParts([]);
-      setSynonyms(["", "", ""]);
-      setSentences(["", "", ""]);
-      setSelectedCategoryIds([]);
-      setSelectedPhaseIds([]);
-
       await fetchWords();
 
       setIsSubmitting(false);
@@ -173,6 +153,20 @@ export default function Home() {
       setIsDialogOpen(false);
     }
   };
+
+  useEffect(() => {
+    if (!isDialogOpen) {
+      setEditingId(null);
+      setTitle("");
+      setPronunciation("");
+      setMeaning("");
+      setSelectedParts([]);
+      setSynonyms(["", "", ""]);
+      setSentences(["", "", ""]);
+      setSelectedCategoryIds([]);
+      setSelectedPhaseIds([]);
+    }
+  }, [isDialogOpen]);
 
   return (
     <div className="mx-auto flex w-full max-w-[800px] flex-col items-stretch justify-between gap-y-8 px-4">
