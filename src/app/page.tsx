@@ -1,5 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
@@ -51,6 +52,7 @@ export default function Home() {
 
   const [isLoadingWords, setIsLoadingWords] = useState<boolean>(true);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
 
   const fetchWords = useCallback(async () => {
     try {
@@ -104,6 +106,8 @@ export default function Home() {
     setSynonyms([...editingWord.synonyms, "", "", ""].slice(0, 3));
     setSelectedCategoryIds(editingWord.categoryIds);
     setSelectedPhaseIds(editingWord.phaseIds);
+
+    setIsDialogOpen(true);
   };
 
   const handleCancelEditing = async () => {
@@ -118,6 +122,8 @@ export default function Home() {
     setSentences(["", "", ""]);
     setSelectedCategoryIds([]);
     setSelectedPhaseIds([]);
+
+    setIsDialogOpen(false);
   };
 
   const handleSubmit = async () => {
@@ -163,325 +169,331 @@ export default function Home() {
       setIsSubmitting(false);
     } catch (error) {
       console.error(error);
+    } finally {
+      setIsDialogOpen(false);
     }
   };
 
   return (
     <div className="mx-auto flex w-full max-w-[800px] flex-col items-stretch justify-between gap-y-8 px-4">
-      <div className="flex items-center justify-between gap-x-4">
-        <Separator className="z-0 h-[1px] flex-1 -translate-y-1/2 bg-primary-900" />
-        <h2
-          id="form"
-          className="z-50 bg-primary-100 text-center text-lg font-bold text-primary-900"
-        >
-          {editingId === null ? "Add New Word" : "Edit Word"}
-        </h2>
-        <Separator className="z-0 h-[1px] flex-1 -translate-y-1/2 bg-primary-900" />
-      </div>
-      <div className="flex flex-col gap-y-4">
-        <div>
-          <Label>
-            Title<span className="text-error-900">*</span>
-          </Label>
-          <Input
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            type="text"
-            id="title"
-            placeholder="e.g., nudge"
-          />
-        </div>
-        <div>
-          <Label>Pronunciation</Label>
-          <Input
-            value={pronunciation}
-            onChange={(e) => setPronunciation(e.target.value)}
-            type="text"
-            id="pronunciation"
-            placeholder="e.g., nʌdʒ"
-          />
-        </div>
-        <div>
-          <Label>Meaning</Label>
-          <Textarea
-            id="meaning"
-            value={meaning}
-            onChange={(e) => setMeaning(e.target.value)}
-            placeholder="e.g., Subtle design element or technique used to gently encourage users to take a specific action or guide them toward a desired behavior without being too forceful or interruptive. "
-            className="h-28"
-          />
-        </div>
-        <div>
-          <Label>Part</Label>
-          <Listbox value={selectedParts} onChange={setSelectedParts} multiple>
-            <div className="relative mt-1">
-              <Listbox.Button className="relative w-full cursor-pointer rounded-lg border bg-white py-2 pl-3 pr-10 text-left focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-primary-300 sm:text-sm">
-                {selectedParts.length > 0 ? (
-                  <span className="block truncate">
-                    {selectedParts.join(", ")}
-                  </span>
-                ) : (
-                  <span className="text-gray-500">Select part</span>
-                )}
-                <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                  {/* <ChevronUpDownIcon
-                  className="h-5 w-5 text-gray-400"
-                  aria-hidden="true"
-                /> */}
-                </span>
-              </Listbox.Button>
-              <Transition
-                as={Fragment}
-                leave="transition ease-in duration-100"
-                leaveFrom="opacity-100"
-                leaveTo="opacity-0"
-              >
-                <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
-                  {partOptions.map((partOption, index) => (
-                    <Listbox.Option
-                      key={index}
-                      className={({ active }) =>
-                        `relative cursor-default select-none py-2 pl-10 pr-4 ${
-                          active
-                            ? "bg-primary-100 text-primary-900"
-                            : "text-gray-900"
-                        }`
-                      }
-                      value={partOption}
-                    >
-                      {({ selected }) => (
-                        <>
-                          <span
-                            className={`block truncate ${
-                              selected ? "font-medium" : "font-normal"
-                            }`}
-                          >
-                            {partOption}
-                          </span>
-                          {selected ? (
-                            <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-primary-900">
-                              <FaCheck />
-                            </span>
-                          ) : null}
-                        </>
-                      )}
-                    </Listbox.Option>
-                  ))}
-                </Listbox.Options>
-              </Transition>
-            </div>
-          </Listbox>
-        </div>
-
-        <div>
-          <Label>Category</Label>
-          <Listbox
-            value={selectedCategoryIds}
-            onChange={setSelectedCategoryIds}
-            multiple
-          >
-            <div className="relative mt-1">
-              <Listbox.Button className="relative w-full cursor-pointer rounded-lg border bg-white py-2 pl-3 pr-10 text-left focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-primary-300 sm:text-sm">
-                {selectedCategoryIds.length > 0 ? (
-                  <span className="block truncate">
-                    {selectedCategoryIds
-                      .map((selectedCategoryId) =>
-                        categoryOptions.get(selectedCategoryId),
-                      )
-                      .join(", ")}
-                  </span>
-                ) : (
-                  <span className="text-gray-500">Select categories</span>
-                )}
-                <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                  {/* <ChevronUpDownIcon
-                  className="h-5 w-5 text-gray-400"
-                  aria-hidden="true"
-                /> */}
-                </span>
-              </Listbox.Button>
-              <Transition
-                as={Fragment}
-                leave="transition ease-in duration-100"
-                leaveFrom="opacity-100"
-                leaveTo="opacity-0"
-              >
-                <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
-                  {Array.from(categoryOptions.entries()).map(
-                    (categoryOption, index) => (
-                      <Listbox.Option
-                        key={index}
-                        className={({ active }) =>
-                          `relative cursor-default select-none py-2 pl-10 pr-4 ${
-                            active
-                              ? "bg-primary-100 text-primary-900"
-                              : "text-gray-900"
-                          }`
-                        }
-                        value={categoryOption[0]}
-                      >
-                        {({ selected }) => (
-                          <>
-                            <span
-                              className={`block truncate ${
-                                selected ? "font-medium" : "font-normal"
-                              }`}
-                            >
-                              {categoryOption[1]}
-                            </span>
-                            {selected ? (
-                              <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-primary-900">
-                                <FaCheck />
-                              </span>
-                            ) : null}
-                          </>
-                        )}
-                      </Listbox.Option>
-                    ),
-                  )}
-                </Listbox.Options>
-              </Transition>
-            </div>
-          </Listbox>
-        </div>
-
-        <div>
-          <Label>Phase</Label>
-          <Listbox
-            value={selectedPhaseIds}
-            onChange={setSelectedPhaseIds}
-            multiple
-          >
-            <div className="relative mt-1">
-              <Listbox.Button className="relative w-full cursor-pointer rounded-lg border bg-white py-2 pl-3 pr-10 text-left focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-primary-300 sm:text-sm">
-                {selectedPhaseIds.length > 0 ? (
-                  <span className="block truncate">
-                    {selectedPhaseIds
-                      .map((selectedPhaseId) =>
-                        phaseOptions.get(selectedPhaseId),
-                      )
-                      .join(", ")}
-                  </span>
-                ) : (
-                  <span className="text-gray-500">Select phases</span>
-                )}
-                <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                  {/* <ChevronUpDownIcon
-                  className="h-5 w-5 text-gray-400"
-                  aria-hidden="true"
-                /> */}
-                </span>
-              </Listbox.Button>
-              <Transition
-                as={Fragment}
-                leave="transition ease-in duration-100"
-                leaveFrom="opacity-100"
-                leaveTo="opacity-0"
-              >
-                <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
-                  {Array.from(phaseOptions.entries()).map(
-                    (phaseOption, index) => (
-                      <Listbox.Option
-                        key={index}
-                        className={({ active }) =>
-                          `relative cursor-default select-none py-2 pl-10 pr-4 ${
-                            active
-                              ? "bg-primary-100 text-primary-900"
-                              : "text-gray-900"
-                          }`
-                        }
-                        value={phaseOption[0]}
-                      >
-                        {({ selected }) => (
-                          <>
-                            <span
-                              className={`block truncate ${
-                                selected ? "font-medium" : "font-normal"
-                              }`}
-                            >
-                              {phaseOption[1]}
-                            </span>
-                            {selected ? (
-                              <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-primary-900">
-                                <FaCheck />
-                              </span>
-                            ) : null}
-                          </>
-                        )}
-                      </Listbox.Option>
-                    ),
-                  )}
-                </Listbox.Options>
-              </Transition>
-            </div>
-          </Listbox>
-        </div>
-
-        <div>
-          <Label>Sentence</Label>
-          {sentences.map((sentence, index) => (
-            <Textarea
-              key={index}
-              id="sentence"
-              value={sentence}
-              onChange={(e) => {
-                const newSentences = [...sentences];
-                newSentences[index] = e.target.value;
-                setSentences(newSentences);
-              }}
-              className="mb-1 h-28"
-              placeholder={`e.g., To nudge users towards completing their purchase, the site might employ a subtle reminder, such as displaying a message like "Hurry! Only 1 item left in stock."`}
-            />
-          ))}
-        </div>
-        <div>
-          <Label>Synonym</Label>
-          {synonyms.map((synonym, index) => (
-            <Input
-              key={index}
-              id="synonym"
-              value={synonym}
-              onChange={(e) => {
-                const newSynonyms = [...synonyms];
-                newSynonyms[index] = e.target.value;
-                setSynonyms(newSynonyms);
-              }}
-              className="mb-1"
-              placeholder={"prompt"}
-            />
-          ))}
-        </div>
-        <div className="flex justify-end gap-x-2">
-          {editingId !== null && (
-            <Button
-              variant="outline"
-              onClick={handleCancelEditing}
-              className="w-24"
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="h-[80vh] w-screen max-w-[800px] overflow-scroll bg-primary-100">
+          <div className="flex items-center justify-between gap-x-4">
+            <Separator className="z-0 h-[1px] flex-1 -translate-y-1/2 bg-primary-900" />
+            <h2
+              id="form"
+              className="z-50 bg-primary-100 text-center text-lg font-bold text-primary-900"
             >
-              Cancel
-            </Button>
-          )}
-          <Button
-            onClick={handleSubmit}
-            className="w-24"
-            disabled={title.length === 0 || isSubmitting}
-          >
-            {isSubmitting ? (
-              <BeatLoader color="white" loading={true} size={8} />
-            ) : editingId === null ? (
-              "Submit"
-            ) : (
-              "Finish"
-            )}
-          </Button>
-        </div>
-      </div>
-      <div className="flex items-center justify-between gap-x-4">
-        <Separator className="z-0 h-[1px] flex-1 -translate-y-1/2 bg-primary-900" />
-        <h2 className="z-50 bg-primary-100 text-center text-xl font-bold text-primary-900">
-          Word List
-        </h2>
-        <Separator className=" z-0 h-[1px] flex-1 -translate-y-1/2 bg-primary-900" />
+              {editingId === null ? "Add New Word" : "Edit Word"}
+            </h2>
+            <Separator className="z-0 h-[1px] flex-1 -translate-y-1/2 bg-primary-900" />
+          </div>
+          <div className="flex flex-col gap-y-4">
+            <div>
+              <Label>
+                Title<span className="text-error-900">*</span>
+              </Label>
+              <Input
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                type="text"
+                id="title"
+                placeholder="e.g., nudge"
+              />
+            </div>
+            <div>
+              <Label>Pronunciation</Label>
+              <Input
+                value={pronunciation}
+                onChange={(e) => setPronunciation(e.target.value)}
+                type="text"
+                id="pronunciation"
+                placeholder="e.g., nʌdʒ"
+              />
+            </div>
+            <div>
+              <Label>Meaning</Label>
+              <Textarea
+                id="meaning"
+                value={meaning}
+                onChange={(e) => setMeaning(e.target.value)}
+                placeholder="e.g., Subtle design element or technique used to gently encourage users to take a specific action or guide them toward a desired behavior without being too forceful or interruptive. "
+                className="h-28"
+              />
+            </div>
+            <div>
+              <Label>Part</Label>
+              <Listbox
+                value={selectedParts}
+                onChange={setSelectedParts}
+                multiple
+              >
+                <div className="relative mt-1">
+                  <Listbox.Button className="relative w-full cursor-pointer rounded-lg border bg-white py-2 pl-3 pr-10 text-left focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-primary-300 sm:text-sm">
+                    {selectedParts.length > 0 ? (
+                      <span className="block truncate">
+                        {selectedParts.join(", ")}
+                      </span>
+                    ) : (
+                      <span className="text-gray-500">Select part</span>
+                    )}
+                    <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                      {/* <ChevronUpDownIcon
+                  className="h-5 w-5 text-gray-400"
+                  aria-hidden="true"
+                /> */}
+                    </span>
+                  </Listbox.Button>
+                  <Transition
+                    as={Fragment}
+                    leave="transition ease-in duration-100"
+                    leaveFrom="opacity-100"
+                    leaveTo="opacity-0"
+                  >
+                    <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
+                      {partOptions.map((partOption, index) => (
+                        <Listbox.Option
+                          key={index}
+                          className={({ active }) =>
+                            `relative cursor-default select-none py-2 pl-10 pr-4 ${
+                              active
+                                ? "bg-primary-100 text-primary-900"
+                                : "text-gray-900"
+                            }`
+                          }
+                          value={partOption}
+                        >
+                          {({ selected }) => (
+                            <>
+                              <span
+                                className={`block truncate ${
+                                  selected ? "font-medium" : "font-normal"
+                                }`}
+                              >
+                                {partOption}
+                              </span>
+                              {selected ? (
+                                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-primary-900">
+                                  <FaCheck />
+                                </span>
+                              ) : null}
+                            </>
+                          )}
+                        </Listbox.Option>
+                      ))}
+                    </Listbox.Options>
+                  </Transition>
+                </div>
+              </Listbox>
+            </div>
+
+            <div>
+              <Label>Category</Label>
+              <Listbox
+                value={selectedCategoryIds}
+                onChange={setSelectedCategoryIds}
+                multiple
+              >
+                <div className="relative mt-1">
+                  <Listbox.Button className="relative w-full cursor-pointer rounded-lg border bg-white py-2 pl-3 pr-10 text-left focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-primary-300 sm:text-sm">
+                    {selectedCategoryIds.length > 0 ? (
+                      <span className="block truncate">
+                        {selectedCategoryIds
+                          .map((selectedCategoryId) =>
+                            categoryOptions.get(selectedCategoryId),
+                          )
+                          .join(", ")}
+                      </span>
+                    ) : (
+                      <span className="text-gray-500">Select categories</span>
+                    )}
+                    <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                      {/* <ChevronUpDownIcon
+                  className="h-5 w-5 text-gray-400"
+                  aria-hidden="true"
+                /> */}
+                    </span>
+                  </Listbox.Button>
+                  <Transition
+                    as={Fragment}
+                    leave="transition ease-in duration-100"
+                    leaveFrom="opacity-100"
+                    leaveTo="opacity-0"
+                  >
+                    <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
+                      {Array.from(categoryOptions.entries()).map(
+                        (categoryOption, index) => (
+                          <Listbox.Option
+                            key={index}
+                            className={({ active }) =>
+                              `relative cursor-default select-none py-2 pl-10 pr-4 ${
+                                active
+                                  ? "bg-primary-100 text-primary-900"
+                                  : "text-gray-900"
+                              }`
+                            }
+                            value={categoryOption[0]}
+                          >
+                            {({ selected }) => (
+                              <>
+                                <span
+                                  className={`block truncate ${
+                                    selected ? "font-medium" : "font-normal"
+                                  }`}
+                                >
+                                  {categoryOption[1]}
+                                </span>
+                                {selected ? (
+                                  <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-primary-900">
+                                    <FaCheck />
+                                  </span>
+                                ) : null}
+                              </>
+                            )}
+                          </Listbox.Option>
+                        ),
+                      )}
+                    </Listbox.Options>
+                  </Transition>
+                </div>
+              </Listbox>
+            </div>
+
+            <div>
+              <Label>Phase</Label>
+              <Listbox
+                value={selectedPhaseIds}
+                onChange={setSelectedPhaseIds}
+                multiple
+              >
+                <div className="relative mt-1">
+                  <Listbox.Button className="relative w-full cursor-pointer rounded-lg border bg-white py-2 pl-3 pr-10 text-left focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-primary-300 sm:text-sm">
+                    {selectedPhaseIds.length > 0 ? (
+                      <span className="block truncate">
+                        {selectedPhaseIds
+                          .map((selectedPhaseId) =>
+                            phaseOptions.get(selectedPhaseId),
+                          )
+                          .join(", ")}
+                      </span>
+                    ) : (
+                      <span className="text-gray-500">Select phases</span>
+                    )}
+                    <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                      {/* <ChevronUpDownIcon
+                  className="h-5 w-5 text-gray-400"
+                  aria-hidden="true"
+                /> */}
+                    </span>
+                  </Listbox.Button>
+                  <Transition
+                    as={Fragment}
+                    leave="transition ease-in duration-100"
+                    leaveFrom="opacity-100"
+                    leaveTo="opacity-0"
+                  >
+                    <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
+                      {Array.from(phaseOptions.entries()).map(
+                        (phaseOption, index) => (
+                          <Listbox.Option
+                            key={index}
+                            className={({ active }) =>
+                              `relative cursor-default select-none py-2 pl-10 pr-4 ${
+                                active
+                                  ? "bg-primary-100 text-primary-900"
+                                  : "text-gray-900"
+                              }`
+                            }
+                            value={phaseOption[0]}
+                          >
+                            {({ selected }) => (
+                              <>
+                                <span
+                                  className={`block truncate ${
+                                    selected ? "font-medium" : "font-normal"
+                                  }`}
+                                >
+                                  {phaseOption[1]}
+                                </span>
+                                {selected ? (
+                                  <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-primary-900">
+                                    <FaCheck />
+                                  </span>
+                                ) : null}
+                              </>
+                            )}
+                          </Listbox.Option>
+                        ),
+                      )}
+                    </Listbox.Options>
+                  </Transition>
+                </div>
+              </Listbox>
+            </div>
+
+            <div>
+              <Label>Sentence</Label>
+              {sentences.map((sentence, index) => (
+                <Textarea
+                  key={index}
+                  id="sentence"
+                  value={sentence}
+                  onChange={(e) => {
+                    const newSentences = [...sentences];
+                    newSentences[index] = e.target.value;
+                    setSentences(newSentences);
+                  }}
+                  className="mb-1 h-28"
+                  placeholder={`e.g., To nudge users towards completing their purchase, the site might employ a subtle reminder, such as displaying a message like "Hurry! Only 1 item left in stock."`}
+                />
+              ))}
+            </div>
+            <div>
+              <Label>Synonym</Label>
+              {synonyms.map((synonym, index) => (
+                <Input
+                  key={index}
+                  id="synonym"
+                  value={synonym}
+                  onChange={(e) => {
+                    const newSynonyms = [...synonyms];
+                    newSynonyms[index] = e.target.value;
+                    setSynonyms(newSynonyms);
+                  }}
+                  className="mb-1"
+                  placeholder={"prompt"}
+                />
+              ))}
+            </div>
+            <div className="flex justify-end gap-x-2">
+              {editingId !== null && (
+                <Button
+                  variant="outline"
+                  onClick={handleCancelEditing}
+                  className="w-24"
+                >
+                  Cancel
+                </Button>
+              )}
+              <Button
+                onClick={handleSubmit}
+                className="w-24"
+                disabled={title.length === 0 || isSubmitting}
+              >
+                {isSubmitting ? (
+                  <BeatLoader color="white" loading={true} size={8} />
+                ) : editingId === null ? (
+                  "Submit"
+                ) : (
+                  "Finish"
+                )}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+      <div className="flex justify-end">
+        <Button onClick={() => setIsDialogOpen(true)}>Add New</Button>
       </div>
       <div className="flex flex-col gap-y-2">
         {isLoadingWords ? (
