@@ -151,7 +151,7 @@ export default function Home() {
           selectedCategoryIds,
           selectedPhaseIds,
         );
-        fetchWord(newWordId);
+        await fetchWord(newWordId);
       } else {
         await updateCourseWord(
           editingId,
@@ -164,7 +164,7 @@ export default function Home() {
           selectedCategoryIds,
           selectedPhaseIds,
         );
-        fetchWord(editingId);
+        await fetchWord(editingId);
       }
 
       setIsSubmitting(false);
