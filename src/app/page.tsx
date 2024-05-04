@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/text-area";
 import Part from "@/enum/part.enum";
 import addCourseWord from "@/lib/supabase/add-course-word";
 import getCategories from "@/lib/supabase/get-categories";
+import getCourseWord from "@/lib/supabase/get-course-word";
 import getCourseWords from "@/lib/supabase/get-course-words";
 import getPhases from "@/lib/supabase/get-phases";
 import updateCourseWord from "@/lib/supabase/update-course-word";
@@ -66,6 +67,29 @@ export default function Home() {
     }
   }, []);
 
+  const fetchWord = useCallback(async (wordId: number) => {
+    try {
+      const newWord = await getCourseWord(wordId);
+
+      setWords((prev) => {
+        if (!prev) return prev;
+        const index = prev.findIndex((prevWord) => prevWord.id === wordId);
+
+        if (index === -1) {
+          const newWords = [...prev];
+          newWords.unshift(newWord);
+          return newWords;
+        } else {
+          return prev.map((prevWord) =>
+            prevWord.id === wordId ? newWord : prevWord,
+          );
+        }
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  }, []);
+
   useEffect(() => {
     const run = async () => {
       await fetchWords();
@@ -116,29 +140,32 @@ export default function Home() {
 
       setIsSubmitting(true);
 
-      editingId === null
-        ? await addCourseWord(
-            title,
-            pronunciation,
-            selectedParts,
-            meaning,
-            synonyms.filter((synonym) => synonym.length > 0),
-            sentences.filter((sentence) => sentence.length > 0),
-            selectedCategoryIds,
-            selectedPhaseIds,
-          )
-        : await updateCourseWord(
-            editingId,
-            title,
-            pronunciation,
-            selectedParts,
-            meaning,
-            synonyms.filter((synonym) => synonym.length > 0),
-            sentences.filter((sentence) => sentence.length > 0),
-            selectedCategoryIds,
-            selectedPhaseIds,
-          );
-      await fetchWords();
+      if (editingId === null) {
+        const newWordId = await addCourseWord(
+          title,
+          pronunciation,
+          selectedParts,
+          meaning,
+          synonyms.filter((synonym) => synonym.length > 0),
+          sentences.filter((sentence) => sentence.length > 0),
+          selectedCategoryIds,
+          selectedPhaseIds,
+        );
+        fetchWord(newWordId);
+      } else {
+        await updateCourseWord(
+          editingId,
+          title,
+          pronunciation,
+          selectedParts,
+          meaning,
+          synonyms.filter((synonym) => synonym.length > 0),
+          sentences.filter((sentence) => sentence.length > 0),
+          selectedCategoryIds,
+          selectedPhaseIds,
+        );
+        fetchWord(editingId);
+      }
 
       setIsSubmitting(false);
     } catch (error) {

@@ -13,7 +13,7 @@ export default async function addCourseWord(
   sentences: string[],
   categoryIds: number[],
   phaseIds: number[],
-) {
+): Promise<number> {
   const supabase = await createClient();
   const insertWordRes = await supabase
     .from("words")
@@ -64,4 +64,6 @@ export default async function addCourseWord(
       throw new Error(insertPhaseRes.error.message);
     }
   }
+
+  return insertWordRes.data.id;
 }
