@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/text-area";
 import Part from "@/enum/part.enum";
 import addCourseWord from "@/lib/supabase/add-course-word";
@@ -12,6 +13,7 @@ import getCategories from "@/lib/supabase/get-categories";
 import getCourseWord from "@/lib/supabase/get-course-word";
 import getCourseWords from "@/lib/supabase/get-course-words";
 import getPhases from "@/lib/supabase/get-phases";
+import toggleWordEnable from "@/lib/supabase/toggle-word-enable";
 import updateCourseWord from "@/lib/supabase/update-course-word";
 import Word from "@/types/word.type";
 import { Listbox, Transition } from "@headlessui/react";
@@ -89,6 +91,15 @@ export default function Home() {
       console.error(error);
     }
   }, []);
+
+  const toggleEnable = async (wordId: number, isEnable: boolean) => {
+    try {
+      await toggleWordEnable(wordId, isEnable);
+      await fetchWord(wordId);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   useEffect(() => {
     const run = async () => {
@@ -196,17 +207,17 @@ export default function Home() {
           onInteractOutside={(e) => {
             e.preventDefault();
           }}
-          className="h-[80vh] w-screen max-w-[800px] overflow-scroll bg-primary-100"
+          className="bg-main-100 h-[80vh] w-screen max-w-[800px] overflow-scroll"
         >
           <div className="flex items-center justify-between gap-x-4">
-            <Separator className="z-0 h-[1px] flex-1 -translate-y-1/2 bg-primary-900" />
+            <Separator className="bg-main-900 z-0 h-[1px] flex-1 -translate-y-1/2" />
             <h2
               id="form"
-              className="z-50 bg-primary-100 text-center text-lg font-bold text-primary-900"
+              className="bg-main-100 text-main-900 z-50 text-center text-lg font-bold"
             >
               {editingId === null ? "Add New Word" : "Edit Word"}
             </h2>
-            <Separator className="z-0 h-[1px] flex-1 -translate-y-1/2 bg-primary-900" />
+            <Separator className="bg-main-900 z-0 h-[1px] flex-1 -translate-y-1/2" />
           </div>
           <div className="flex flex-col gap-y-4">
             <div>
@@ -249,7 +260,7 @@ export default function Home() {
                 multiple
               >
                 <div className="relative mt-1">
-                  <Listbox.Button className="relative w-full cursor-pointer rounded-lg border bg-white py-2 pl-3 pr-10 text-left focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-primary-300 sm:text-sm">
+                  <Listbox.Button className="focus-visible:ring-offset-main-300 relative w-full cursor-pointer rounded-lg border bg-white py-2 pl-3 pr-10 text-left focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 sm:text-sm">
                     {selectedParts.length > 0 ? (
                       <span className="block truncate">
                         {selectedParts.join(", ")}
@@ -277,7 +288,7 @@ export default function Home() {
                           className={({ active }) =>
                             `relative cursor-default select-none py-2 pl-10 pr-4 ${
                               active
-                                ? "bg-primary-100 text-primary-900"
+                                ? "bg-main-100 text-main-900"
                                 : "text-gray-900"
                             }`
                           }
@@ -293,7 +304,7 @@ export default function Home() {
                                 {partOption}
                               </span>
                               {selected ? (
-                                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-primary-900">
+                                <span className="text-main-900 absolute inset-y-0 left-0 flex items-center pl-3">
                                   <FaCheck />
                                 </span>
                               ) : null}
@@ -315,7 +326,7 @@ export default function Home() {
                 multiple
               >
                 <div className="relative mt-1">
-                  <Listbox.Button className="relative w-full cursor-pointer rounded-lg border bg-white py-2 pl-3 pr-10 text-left focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-primary-300 sm:text-sm">
+                  <Listbox.Button className="focus-visible:ring-offset-main-300 relative w-full cursor-pointer rounded-lg border bg-white py-2 pl-3 pr-10 text-left focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 sm:text-sm">
                     {selectedCategoryIds.length > 0 ? (
                       <span className="block truncate">
                         {selectedCategoryIds
@@ -348,7 +359,7 @@ export default function Home() {
                             className={({ active }) =>
                               `relative cursor-default select-none py-2 pl-10 pr-4 ${
                                 active
-                                  ? "bg-primary-100 text-primary-900"
+                                  ? "bg-main-100 text-main-900"
                                   : "text-gray-900"
                               }`
                             }
@@ -364,7 +375,7 @@ export default function Home() {
                                   {categoryOption[1]}
                                 </span>
                                 {selected ? (
-                                  <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-primary-900">
+                                  <span className="text-main-900 absolute inset-y-0 left-0 flex items-center pl-3">
                                     <FaCheck />
                                   </span>
                                 ) : null}
@@ -387,7 +398,7 @@ export default function Home() {
                 multiple
               >
                 <div className="relative mt-1">
-                  <Listbox.Button className="relative w-full cursor-pointer rounded-lg border bg-white py-2 pl-3 pr-10 text-left focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-primary-300 sm:text-sm">
+                  <Listbox.Button className="focus-visible:ring-offset-main-300 relative w-full cursor-pointer rounded-lg border bg-white py-2 pl-3 pr-10 text-left focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 sm:text-sm">
                     {selectedPhaseIds.length > 0 ? (
                       <span className="block truncate">
                         {selectedPhaseIds
@@ -420,7 +431,7 @@ export default function Home() {
                             className={({ active }) =>
                               `relative cursor-default select-none py-2 pl-10 pr-4 ${
                                 active
-                                  ? "bg-primary-100 text-primary-900"
+                                  ? "bg-main-100 text-main-900"
                                   : "text-gray-900"
                               }`
                             }
@@ -436,7 +447,7 @@ export default function Home() {
                                   {phaseOption[1]}
                                 </span>
                                 {selected ? (
-                                  <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-primary-900">
+                                  <span className="text-main-900 absolute inset-y-0 left-0 flex items-center pl-3">
                                     <FaCheck />
                                   </span>
                                 ) : null}
@@ -523,7 +534,7 @@ export default function Home() {
         ) : (
           words?.map((word, index) => (
             <div
-              key={index}
+              key={word.id}
               className="relative flex w-full flex-col gap-y-4 bg-white p-4 shadow-md"
             >
               <div className="flex items-center gap-x-2">
@@ -546,7 +557,7 @@ export default function Home() {
                   {word.synonyms.map((synonym, index) => (
                     <p
                       key={index}
-                      className="rounded-full border border-primary-900 bg-primary-100 px-3 py-1 text-sm text-primary-900"
+                      className="border-main-900 bg-main-100 text-main-900 rounded-full border px-3 py-1 text-sm"
                     >
                       {synonym}
                     </p>
@@ -559,9 +570,9 @@ export default function Home() {
                     <span className="w-20 text-sm text-gray-700">
                       Categories:
                     </span>
-                    {word.categoryIds.map((categoryId, index) => (
+                    {word.categoryIds.map((categoryId) => (
                       <p
-                        key={index}
+                        key={categoryId}
                         className="rounded-md border border-warning-500 bg-warning-100 px-3 py-1 text-sm text-warning-900"
                       >
                         {categoryOptions.get(categoryId)}
@@ -572,9 +583,9 @@ export default function Home() {
                 {word.phaseIds.length > 0 && (
                   <div className="flex flex-wrap items-center gap-x-2 gap-y-2">
                     <span className="w-20 text-sm text-gray-700">Phases:</span>
-                    {word.phaseIds.map((phaseId, index) => (
+                    {word.phaseIds.map((phaseId) => (
                       <p
-                        key={index}
+                        key={phaseId}
                         className="rounded-md border border-error-500 bg-error-100 px-3 py-1 text-sm text-error-900"
                       >
                         {phaseOptions.get(phaseId)}
@@ -583,14 +594,22 @@ export default function Home() {
                   </div>
                 )}
               </div>
-              <ScrollLink
-                to="form"
-                smooth={true}
-                duration={200}
-                className="absolute right-4"
-              >
-                <Button onClick={() => handleEditWord(index)}>Edit</Button>
-              </ScrollLink>
+              <div className="absolute right-4 flex items-center gap-x-2">
+                <div className="flex items-center gap-x-1">
+                  <span className="text-sm font-semibold text-gray-700">
+                    Public
+                  </span>
+                  <Switch
+                    defaultChecked={word.enable}
+                    onCheckedChange={(checked) =>
+                      toggleEnable(word.id, checked)
+                    }
+                  />
+                </div>
+                <ScrollLink to="form" smooth={true} duration={200}>
+                  <Button onClick={() => handleEditWord(index)}>Edit</Button>
+                </ScrollLink>
+              </div>
             </div>
           ))
         )}

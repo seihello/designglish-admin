@@ -13,7 +13,7 @@ const config: Config = {
     },
     extend: {
       colors: {
-        primary: {
+        main: {
           100: "#F1FBFB",
           300: "#CEF1F1",
           500: "#86CED8",
@@ -41,6 +41,28 @@ const config: Config = {
           800: "#5A5F62",
           900: "#1F2324",
         },
+        background: "#ffffff",
+        foreground: "#030712",
+        primary: "#098292",
+        "primary-foreground": "#f9fafb",
+        border: "#e5e7eb",
+        input: "#e5e7eb",
+        ring: "#098292", // same as primary
+        secondary: "#f3f4f6",
+        "secondary-foreground": "#111827",
+        destructive: "#dd224f",
+        "destructive-foreground": "#f9fafb",
+        muted: "#f3f4f6",
+        "muted-foreground": "#6b7280",
+        accent: "#f3f4f6",
+        "accent-foreground": "#111827",
+        popover: "#ffffff",
+        "popover-foreground": "#030712",
+        tooltip: "#374151",
+        "tooltip-foreground": "#ffffff",
+        card: "#ffffff",
+        "card-foreground": "#030712",
+        white: "#ffffff",
       },
     },
   },

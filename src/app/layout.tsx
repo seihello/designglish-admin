@@ -17,7 +17,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <main className="bg-primary-100 min-h-screen py-8">{children}</main>
+        <main className="bg-main-100 min-h-screen py-8">{children}</main>
       </body>
     </html>
   );

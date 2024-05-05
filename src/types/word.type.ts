@@ -10,6 +10,7 @@ type Word = {
   synonyms: string[];
   categoryIds: number[];
   phaseIds: number[];
+  enable: boolean;
 };
 
 export default Word;
